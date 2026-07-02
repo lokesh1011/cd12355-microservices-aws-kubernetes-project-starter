@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
       - name: postgresql
-        image: postgres:latest
+        image: postgres:15
         env:
         - name: POSTGRES_DB
           value: mydatabase
@@ -27,6 +27,7 @@ spec:
         - mountPath: /var/lib/postgresql/data
           name: postgresql-storage
       volumes:
+      # emptyDir gives Postgres a clean, writable data dir every start,
+      # avoiding hostPath permission / "directory not empty" crashes on EKS.
       - name: postgresql-storage
-        persistentVolumeClaim:
-          claimName: postgresql-pvc
+        emptyDir: {}
