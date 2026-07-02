@@ -1,0 +1,24 @@
+version: 0.2
+
+# Environment variables AWS_ACCOUNT_ID, AWS_DEFAULT_REGION and IMAGE_REPO_NAME
+# are configured in the CodeBuild project settings (AWS console).
+phases:
+  pre_build:
+    commands:
+      - echo "Logging in to Amazon ECR..."
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME
+      # Semantic version (three numbers) automated with the CodeBuild build number.
+      - IMAGE_TAG=1.0.$CODEBUILD_BUILD_NUMBER
+  build:
+    commands:
+      - echo "Building the Docker image..."
+      - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG ./analytics
+      - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $REPOSITORY_URI:$IMAGE_TAG
+      - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $REPOSITORY_URI:latest
+  post_build:
+    commands:
+      - echo "Pushing the Docker image to Amazon ECR..."
+      - docker push $REPOSITORY_URI:$IMAGE_TAG
+      - docker push $REPOSITORY_URI:latest
+      - echo "Pushed $REPOSITORY_URI:$IMAGE_TAG"
