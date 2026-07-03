@@ -15,6 +15,7 @@ echo ">> Deleting any leftover CloudFormation stacks from failed attempts..."
 for stack in eksctl-$CLUSTER-nodegroup-my-nodes eksctl-$CLUSTER-cluster; do
   if aws cloudformation describe-stacks --stack-name "$stack" --region "$REGION" >/dev/null 2>&1; then
     echo "   deleting $stack ..."
+    aws cloudformation update-termination-protection --stack-name "$stack" --no-enable-termination-protection --region "$REGION" 2>/dev/null || true
     aws cloudformation delete-stack --stack-name "$stack" --region "$REGION"
     aws cloudformation wait stack-delete-complete --stack-name "$stack" --region "$REGION" 2>/dev/null || true
     echo "   deleted $stack"
