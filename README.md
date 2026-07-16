@@ -14,20 +14,20 @@ to build the service into a container image and run it on Amazon EKS.
 ## How the pipeline works
 When code is pushed, CodeBuild logs in to ECR, builds the Docker image, tags it
 `1.0.$CODEBUILD_BUILD_NUMBER` (semantic versioning), and pushes it to ECR. EKS then
-runs that image via `deployment/coworking.yaml`, which pulls plaintext settings from
-`deployment/configmap.yaml` and the database password from `deployment/secret.yaml`.
-The database runs from `deployment/postgresql-*.yaml`, with data persisted through a
+runs that image via `deployments/coworking.yaml`, which pulls plaintext settings from
+`deployments/configmap.yaml` and the database password from `deployments/secret.yaml`.
+The database runs from `deployments/postgresql-*.yaml`, with data persisted through a
 PersistentVolumeClaim.
 
 ## Deploying from scratch
-Apply the manifests with `kubectl apply -f deployment/` (Postgres storage/service,
+Apply the manifests with `kubectl apply -f deployments/` (Postgres storage/service,
 ConfigMap/Secret, then the app). The seed data in `db/` is loaded into Postgres once,
 and the public URL is read from `kubectl get svc coworking`.
 
 ## Releasing a new build
 Push your changes in `analytics/` to trigger a CodeBuild run, which publishes a new
-`1.0.N` image to ECR. Then bump the `image:` tag in `deployment/coworking.yaml` and run
-`kubectl apply -f deployment/coworking.yaml`; EKS performs a rolling update, which you
+`1.0.N` image to ECR. Then bump the `image:` tag in `deployments/coworking.yaml` and run
+`kubectl apply -f deployments/coworking.yaml`; EKS performs a rolling update, which you
 can confirm with `kubectl get pods` and the `/health_check` endpoint.
 
 ---
