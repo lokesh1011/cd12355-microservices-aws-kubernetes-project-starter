@@ -12,7 +12,9 @@ to build the service into a container image and run it on Amazon EKS.
 - **Observability** — **CloudWatch Container Insights** collects cluster and application logs.
 
 ## How the pipeline works
-When code is pushed, CodeBuild logs in to ECR, builds the Docker image, tags it
+A GitHub webhook (PUSH event filter) triggers the CodeBuild project automatically on
+every push to the repository — no manual "Start build" step is needed. On each run,
+CodeBuild logs in to ECR, builds the Docker image, tags it
 `1.0.$CODEBUILD_BUILD_NUMBER` (semantic versioning), and pushes it to ECR. EKS then
 runs that image via `deployments/coworking.yaml`, which pulls plaintext settings from
 `deployments/configmap.yaml` and the database password from `deployments/secret.yaml`.
