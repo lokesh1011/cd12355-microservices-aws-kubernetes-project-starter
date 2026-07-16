@@ -30,9 +30,8 @@ spec:
     spec:
       containers:
       - name: coworking
-        # Replace with your ECR image URI + tag, e.g.
-        # 1234567890.dkr.ecr.us-east-1.amazonaws.com/coworking:1.0.1
-        image: <DOCKER_IMAGE_URI_FROM_ECR>
+        # ECR image built and pushed by the CodeBuild pipeline (buildspec.yaml).
+        image: 825820235226.dkr.ecr.us-east-1.amazonaws.com/coworking:1.0.1
         imagePullPolicy: Always
         resources:
           requests:
